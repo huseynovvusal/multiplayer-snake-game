@@ -1,11 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Retro snake game styling */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Press Start 2P", system-ui, monospace;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #121212;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -52,6 +56,18 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Retro button styling */
+.retro-button {
+  @apply px-4 py-2 border-4 border-gray-300 bg-gray-800 text-white hover:bg-gray-700 
+  transition-colors font-bold outline-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)];
+}
+
+/* Retro input styling */
+.retro-input {
+  @apply px-4 py-2 border-4 border-gray-300 bg-gray-800 text-white outline-none
+  shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)];
 }
 
 @media (prefers-color-scheme: light) {
