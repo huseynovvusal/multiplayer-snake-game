@@ -9,7 +9,7 @@ export default function App() {
       {
         id: 1,
         name: "Player 1",
-        color: "red",
+        color: "green",
         direction: { x: 1, y: 0 },
         snake: [
           { x: 10, y: 10 },
@@ -51,11 +51,28 @@ export default function App() {
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     const cellSize = Math.floor(Math.min(canvas.width, canvas.height) / GRID_SIZE)
-
+    ctx.strokeStyle = "#233053"
+    ctx.lineWidth = 0.75 // Set the stroke size
+    for (let x = 0; x < GRID_SIZE; x++) {
+      for (let y = 0; y < GRID_SIZE; y++) {
+        const isEven = (x + y) % 2 === 0
+        ctx.fillStyle = isEven ? "#2E3B5C" : "#3A456B"
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize)
+        ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize)
+      }
+    }
     gameState.players.forEach((player) => {
       ctx.fillStyle = player.color
       player.snake.forEach((segment) => {
         ctx.fillRect(segment.x * cellSize, segment.y * cellSize, cellSize, cellSize)
+        ctx.strokeStyle = "#233053"
+        const padding = cellSize * 0
+        ctx.strokeRect(
+          segment.x * cellSize + padding,
+          segment.y * cellSize + padding,
+          cellSize - padding * 2,
+          cellSize - padding * 2
+        )
       })
     })
   }, [gameState])
@@ -116,8 +133,16 @@ export default function App() {
   }, [update])
 
   return (
-    <div className="h-[700px] aspect-square mx-auto">
-      <canvas className="w-full h-full" ref={canvasRef}></canvas>
+    <div className="flex items-start gap-10">
+      <canvas className="h-[700px] aspect-square" ref={canvasRef}></canvas>
+      <div className="flex flex-col justify-center p-6">
+        {gameState.players.map((player) => (
+          <div key={player.id} className="flex items-center mr-4">
+            <div className="w-4 h-4 mr-2" style={{ backgroundColor: player.color }}></div>
+            <span>{player.name}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
