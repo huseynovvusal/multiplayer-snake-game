@@ -30,4 +30,5 @@ export interface GameRoom {
   id: string;
   gameState: GameState;
   isGameStarted: boolean;
+  ownerId: string;
 }

@@ -1,9 +1,117 @@
-import { SubscribeMessage, WebSocketGateway } from "@nestjs/websockets";
+import {
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from "@nestjs/websockets";
+import { Server, Socket } from "socket.io";
+import { GameService } from "./game.service";
 
 @WebSocketGateway()
 export class GameGateway {
-  @SubscribeMessage("message")
-  handleMessage(client: any, payload: any): string {
-    return "Hello world!";
+  @WebSocketServer() server: Server;
+  private playerRooms = new Map<string, string>(); // Maps player IDs to room IDs
+
+  constructor(private gameService: GameService) {}
+
+  handleConnection(client: Socket) {
+    console.log(`Client connected: ${client.id}`);
+  }
+
+  handleDisconnect(client: Socket) {
+    console.log(`Client disconnected: ${client.id}`);
+    const roomId = this.playerRooms.get(client.id);
+
+    if (roomId) {
+      this.gameService.eliminatePlayer(roomId, client.id);
+      this.playerRooms.delete(client.id);
+    }
+  }
+
+  @SubscribeMessage("createRoom")
+  handleCreateRoom(client: any, roomId: string) {
+    const gameRoom = this.gameService.createGameRoom(roomId, client.id);
+    client.join(roomId);
+
+    this.playerRooms.set(client.id, roomId);
+
+    this.server.to(roomId).emit("roomCreated", gameRoom);
+  }
+
+  @SubscribeMessage("joinRoom")
+  handleJoinRoom(client: any, data: { roomId: string; playerName: string }) {
+    const { roomId, playerName } = data;
+
+    const gameRoom = this.gameService.getGameRoom(roomId);
+
+    if (!gameRoom) {
+      client.emit("roomNotFound", roomId);
+      return;
+    }
+
+    client.join(roomId);
+    this.playerRooms.set(client.id, roomId);
+
+    this.gameService.addPlayerToRoom(roomId, client.id, playerName);
+    this.server.to(roomId).emit("playerJoined", client.id);
+  }
+
+  @SubscribeMessage("startGame")
+  handleStartGame(client: any, roomId: string) {
+    const gameRoom = this.gameService.getGameRoom(roomId);
+
+    if (!gameRoom) {
+      client.emit("roomNotFound", roomId);
+      return;
+    }
+
+    if (gameRoom.isGameStarted) {
+      client.emit("gameAlreadyStarted", roomId);
+      return;
+    }
+
+    if (gameRoom.ownerId !== client.id) {
+      client.emit("notRoomOwner", roomId);
+      return;
+    }
+
+    gameRoom.isGameStarted = true;
+    this.gameService.startGame(roomId);
+    this.server.to(roomId).emit("gameStarted", roomId);
+
+    this.startBroadcastingGameState(roomId);
+  }
+
+  @SubscribeMessage("move")
+  handleMove(client: any, data: { direction: { x: number; y: number } }) {
+    const roomId = this.playerRooms.get(client.id);
+    if (!roomId) {
+      client.emit("notInRoom");
+      return;
+    }
+    const gameRoom = this.gameService.getGameRoom(roomId);
+    if (!gameRoom) {
+      client.emit("roomNotFound", roomId);
+      return;
+    }
+    const player = gameRoom.gameState.players[client.id];
+    if (!player) {
+      client.emit("playerNotFound", client.id);
+      return;
+    }
+
+    this.gameService.changePlayerDirection(roomId, client.id, data.direction);
+  }
+
+  private startBroadcastingGameState(gameId: string) {
+    const interval = setInterval(() => {
+      const gameRoom = this.gameService.getGameRoom(gameId);
+
+      if (!gameRoom) {
+        clearInterval(interval);
+        return;
+      }
+
+      this.server.to(gameId).emit("gameState", gameRoom.gameState);
+    }, 2000); // Send updates
   }
 }

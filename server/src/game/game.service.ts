@@ -10,9 +10,10 @@ export class GameService {
   private GRID_SIZE = { width: 50, height: 50 };
   private INITIAL_SNAKE_LENGTH = 3;
 
-  createGameRoom(roomId: string): GameRoom {
+  createGameRoom(roomId: string, ownerId: string): GameRoom {
     const gameRoom: GameRoom = {
       id: roomId,
+      ownerId,
       gameState: {
         id: roomId,
         players: {},
@@ -24,6 +25,7 @@ export class GameService {
     };
 
     this.gameRooms.set(roomId, gameRoom);
+
     return gameRoom;
   }
 
