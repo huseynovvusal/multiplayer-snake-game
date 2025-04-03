@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { GameRoom, Player, Position } from "./types";
+import { v4 as uuidv4 } from "uuid"; // Import uuid for generating unique room IDs
 
 @Injectable()
 export class GameService {
@@ -10,7 +11,9 @@ export class GameService {
   private GRID_SIZE = { width: 50, height: 50 };
   private INITIAL_SNAKE_LENGTH = 3;
 
-  createGameRoom(roomId: string, ownerId: string): GameRoom {
+  createGameRoom(ownerId: string): GameRoom {
+    const roomId = uuidv4(); // Generate a unique room ID
+
     const gameRoom: GameRoom = {
       id: roomId,
       ownerId,
@@ -20,8 +23,8 @@ export class GameService {
         food: [],
         gridSize: this.GRID_SIZE,
         isGameOver: false,
+        isGameStarted: false,
       },
-      isGameStarted: false,
     };
 
     this.gameRooms.set(roomId, gameRoom);
@@ -69,11 +72,11 @@ export class GameService {
     const gameRoom = this.getGameRoom(roomId);
     if (!gameRoom) throw new Error("There is no such a game room");
 
-    if (gameRoom.isGameStarted) {
+    if (gameRoom.gameState.isGameStarted) {
       throw new Error("Game already started");
     }
 
-    gameRoom.isGameStarted = true;
+    gameRoom.gameState.isGameStarted = true;
 
     // Initialize players' snakes
     for (const playerId in gameRoom.gameState.players) {
@@ -145,7 +148,7 @@ export class GameService {
     // Check if the game is over
     if (this.isGameOver(gameRoom)) {
       clearInterval(this.intervalIds.get(gameRoom.id));
-      gameRoom.isGameStarted = false;
+      gameRoom.gameState.isGameStarted = false;
       gameRoom.gameState.isGameOver = true;
     }
   }

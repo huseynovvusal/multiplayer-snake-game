@@ -24,11 +24,11 @@ export interface GameState {
   food: Position[];
   gridSize: { width: number; height: number };
   isGameOver: boolean;
+  isGameStarted: boolean;
 }
 
 export interface GameRoom {
   id: string;
   gameState: GameState;
-  isGameStarted: boolean;
   ownerId: string;
 }

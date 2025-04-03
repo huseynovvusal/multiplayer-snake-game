@@ -28,13 +28,13 @@ export class GameGateway {
   }
 
   @SubscribeMessage("createRoom")
-  handleCreateRoom(client: any, roomId: string) {
-    const gameRoom = this.gameService.createGameRoom(roomId, client.id);
-    client.join(roomId);
+  handleCreateRoom(client: any) {
+    const gameRoom = this.gameService.createGameRoom(client.id);
+    client.join(gameRoom.id);
 
-    this.playerRooms.set(client.id, roomId);
+    this.playerRooms.set(client.id, gameRoom.id);
 
-    this.server.to(roomId).emit("roomCreated", gameRoom);
+    this.server.to(gameRoom.id).emit("roomCreated", gameRoom);
   }
 
   @SubscribeMessage("joinRoom")
@@ -64,7 +64,7 @@ export class GameGateway {
       return;
     }
 
-    if (gameRoom.isGameStarted) {
+    if (gameRoom.gameState.isGameStarted) {
       client.emit("gameAlreadyStarted", roomId);
       return;
     }
@@ -74,7 +74,7 @@ export class GameGateway {
       return;
     }
 
-    gameRoom.isGameStarted = true;
+    gameRoom.gameState.isGameStarted = true;
     this.gameService.startGame(roomId);
     this.server.to(roomId).emit("gameStarted", roomId);
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
+import { SocketProvider } from "./contexts/SocketContext"
 
 const GRID_SIZE = 50
 
@@ -133,16 +134,19 @@ export default function App() {
   }, [update])
 
   return (
-    <div className="flex items-start gap-10">
-      <canvas className="h-[700px] aspect-square" ref={canvasRef}></canvas>
-      <div className="flex flex-col justify-center p-6">
-        {gameState.players.map((player) => (
-          <div key={player.id} className="flex items-center mr-4">
-            <div className="w-4 h-4 mr-2" style={{ backgroundColor: player.color }}></div>
-            <span>{player.name}</span>
-          </div>
-        ))}
+    <SocketProvider>
+      <div className="flex items-start gap-10">
+        <canvas className="h-[700px] aspect-square" ref={canvasRef}></canvas>
+
+        <div className="flex flex-col justify-center p-6">
+          {gameState.players.map((player) => (
+            <div key={player.id} className="flex items-center mr-4">
+              <div className="w-4 h-4 mr-2" style={{ backgroundColor: player.color }}></div>
+              <span>{player.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </SocketProvider>
   )
 }
