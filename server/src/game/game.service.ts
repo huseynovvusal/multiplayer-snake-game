@@ -89,12 +89,59 @@ export class GameService {
   }
 
   private initializeSnake(): { x: number; y: number }[] {
-    const snake = [];
-    const startX = Math.floor(Math.random() * this.GRID_SIZE.width);
-    const startY = Math.floor(Math.random() * this.GRID_SIZE.height);
+    // Collect all existing snake positions from all game rooms
+    const allSnakePositions: { x: number; y: number }[] = [];
 
-    for (let i = 0; i < this.INITIAL_SNAKE_LENGTH; i++) {
-      snake.push({ x: startX - i, y: startY });
+    this.gameRooms.forEach((gameRoom) => {
+      if (gameRoom.gameState.isGameStarted) return;
+
+      Object.values(gameRoom.gameState.players).forEach((player) => {
+        if (player.snake.length > 0) {
+          allSnakePositions.push(...player.snake);
+        }
+      });
+    });
+
+    let valid = false;
+    let snake: { x: number; y: number }[] = [];
+    let attempts = 0;
+    const maxAttempts = 100;
+
+    while (!valid && attempts < maxAttempts) {
+      snake = [];
+      const startX = Math.floor(Math.random() * this.GRID_SIZE.width);
+      const startY = Math.floor(Math.random() * this.GRID_SIZE.height);
+
+      valid = true;
+
+      for (let i = 0; i < this.INITIAL_SNAKE_LENGTH; i++) {
+        const pos = { x: startX - i, y: startY };
+
+        // Check grid boundaries
+        if (
+          pos.x < 0 ||
+          pos.x >= this.GRID_SIZE.width ||
+          pos.y < 0 ||
+          pos.y >= this.GRID_SIZE.height
+        ) {
+          valid = false;
+          break;
+        }
+
+        // Check for overlap with existing snakes
+        if (
+          allSnakePositions.some(
+            (segment) => segment.x === pos.x && segment.y === pos.y,
+          )
+        ) {
+          valid = false;
+          break;
+        }
+
+        snake.push(pos);
+      }
+
+      attempts++;
     }
 
     return snake;
