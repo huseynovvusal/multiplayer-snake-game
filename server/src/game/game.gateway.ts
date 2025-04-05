@@ -6,7 +6,11 @@ import {
 import { Server, Socket } from "socket.io";
 import { GameService } from "./game.service";
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: "*",
+  },
+})
 export class GameGateway {
   @WebSocketServer() server: Server;
   private playerRooms = new Map<string, string>(); // Maps player IDs to room IDs
@@ -29,7 +33,15 @@ export class GameGateway {
 
   @SubscribeMessage("createRoom")
   handleCreateRoom(client: any) {
-    const gameRoom = this.gameService.createGameRoom(client.id);
+    let gameRoom = undefined;
+
+    try {
+      gameRoom = this.gameService.createGameRoom(client.id);
+    } catch (error) {
+      client.emit("roomCreationError", error.message);
+      return;
+    }
+
     client.join(gameRoom.id);
 
     this.playerRooms.set(client.id, gameRoom.id);
@@ -52,7 +64,8 @@ export class GameGateway {
     this.playerRooms.set(client.id, roomId);
 
     this.gameService.addPlayerToRoom(roomId, client.id, playerName);
-    this.server.to(roomId).emit("playerJoined", client.id);
+    // this.server.to(roomId).emit("playerJoined", client.id);
+    this.server.to(roomId).emit("gameState", gameRoom.gameState);
   }
 
   @SubscribeMessage("startGame")
@@ -88,11 +101,13 @@ export class GameGateway {
       client.emit("notInRoom");
       return;
     }
+
     const gameRoom = this.gameService.getGameRoom(roomId);
     if (!gameRoom) {
       client.emit("roomNotFound", roomId);
       return;
     }
+
     const player = gameRoom.gameState.players[client.id];
     if (!player) {
       client.emit("playerNotFound", client.id);
