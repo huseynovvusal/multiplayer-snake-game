@@ -58,56 +58,13 @@ export default function Game() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // setGameState((prevState) => ({
-      //   ...prevState,
-      //   players: prevState.players.map((player) =>
-      //     player.id === 1
-      //       ? {
-      //           ...player,
-      //           direction:
-      //             event.key === "ArrowUp"
-      //               ? { x: 0, y: -1 }
-      //               : event.key === "ArrowDown"
-      //               ? { x: 0, y: 1 }
-      //               : event.key === "ArrowLeft"
-      //               ? { x: -1, y: 0 }
-      //               : event.key === "ArrowRight"
-      //               ? { x: 1, y: 0 }
-      //               : player.direction,
-      //         }
-      //       : player
-      //   ),
-      // }))
+      //TODO: Handle key events for player movement
     }
 
     window.addEventListener("keydown", handleKeyDown)
 
-    // const interval = setInterval(() => {
-    //   setGameState((prevState) => ({
-    //     ...prevState,
-    //     players: prevState.players.map((player) =>
-    //       player.id === 1
-    //         ? {
-    //             ...player,
-    //             snake: player.snake.map((segment, index) => {
-    //               if (index === 0) {
-    //                 return {
-    //                   x: segment.x + (player.direction?.x || 0),
-    //                   y: segment.y + (player.direction?.y || 0),
-    //                 } // Move the head in the current direction
-    //               }
-    //               return player.snake[index - 1] // Move the rest of the body
-    //             }),
-    //           }
-    //         : player
-    //     ),
-    //   }))
-    //   update()
-    // }, 100)
-
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
-      // clearInterval(interval)
     }
   }, [update])
 

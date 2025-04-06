@@ -5,21 +5,21 @@ import { GameRoom, GameState } from "../types"
 interface SocketContextProps {
   socket: Socket | null
   isConnected: boolean
-  createRoom: () => void
   gameRoom: GameRoom | null
   gameState: GameState | null
   joinRoom: (roomId: string, playerName: string) => void
   startGame: () => void
+  createRoom: () => void
 }
 
 const SocketContext = createContext<SocketContextProps>({
   socket: null,
   isConnected: false,
-  createRoom: () => {},
   gameRoom: null,
   gameState: null,
   joinRoom: () => {},
   startGame: () => {},
+  createRoom: () => {},
 })
 
 export const useSocket = () => useContext(SocketContext)
