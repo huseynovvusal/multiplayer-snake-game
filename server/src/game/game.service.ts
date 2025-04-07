@@ -11,15 +11,27 @@ export class GameService {
   private GRID_SIZE = { width: 50, height: 50 };
   private INITIAL_SNAKE_LENGTH = 3;
 
-  createGameRoom(ownerId: string): GameRoom {
+  createGameRoom(ownerId: string, ownerName: string): GameRoom {
     const roomId = uuidv4(); // Generate a unique room ID
+
+    const color = `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`; //? Random color for the player
 
     const gameRoom: GameRoom = {
       id: roomId,
       ownerId,
       gameState: {
         id: roomId,
-        players: {},
+        players: {
+          [ownerId]: {
+            id: ownerId,
+            name: ownerName,
+            score: 0,
+            isEliminated: false,
+            snake: [],
+            direction: { x: 1, y: 0 },
+            color,
+          },
+        },
         food: [],
         gridSize: this.GRID_SIZE,
         isGameOver: false,
