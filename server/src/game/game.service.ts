@@ -90,7 +90,7 @@ export class GameService {
 
     gameRoom.gameState.isGameStarted = true;
 
-    // Initialize players' snakes
+    // Initialize players
     for (const playerId in gameRoom.gameState.players) {
       const player = gameRoom.gameState.players[playerId];
       player.snake = this.initializeSnake();
@@ -98,6 +98,9 @@ export class GameService {
 
     // Start the game loop
     this.startGameLoop(roomId);
+
+    //!
+    console.log("Game started in room:", roomId);
   }
 
   private initializeSnake(): { x: number; y: number }[] {

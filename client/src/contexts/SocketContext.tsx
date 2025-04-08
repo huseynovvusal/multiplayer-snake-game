@@ -9,7 +9,7 @@ interface SocketContextProps {
   gameState: GameState | null
   joinRoom: (roomId: string, playerName: string) => void
   startGame: () => void
-  createRoom: () => void
+  createRoom: (playerName: string) => void
 }
 
 const SocketContext = createContext<SocketContextProps>({
@@ -63,10 +63,10 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
     }
   }, [])
 
-  const createRoom = () => {
-    console.log("Creating room...")
+  const createRoom = (playerName: string) => {
+    console.log("Creating room...", playerName)
     if (socket) {
-      socket.emit("createRoom")
+      socket.emit("createRoom", { playerName })
     }
   }
 

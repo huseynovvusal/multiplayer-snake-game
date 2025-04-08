@@ -32,11 +32,14 @@ export class GameGateway {
   }
 
   @SubscribeMessage("createRoom")
-  handleCreateRoom(client: any) {
+  handleCreateRoom(client: any, data: { playerName: string }) {
     let gameRoom = undefined;
 
+    // !!
+    console.log("Creating room...", data.playerName);
+
     try {
-      gameRoom = this.gameService.createGameRoom(client.id);
+      gameRoom = this.gameService.createGameRoom(client.id, data.playerName);
     } catch (error) {
       client.emit("roomCreationError", error.message);
       return;
@@ -87,7 +90,6 @@ export class GameGateway {
       return;
     }
 
-    gameRoom.gameState.isGameStarted = true;
     this.gameService.startGame(roomId);
     this.server.to(roomId).emit("gameStarted", roomId);
 

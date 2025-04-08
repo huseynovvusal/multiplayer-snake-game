@@ -4,7 +4,7 @@ import { useSocket } from "../contexts/SocketContext"
 const GRID_SIZE = 50
 
 export default function Game() {
-  const { isConnected, gameState, gameRoom, socket } = useSocket()
+  const { isConnected, gameState, gameRoom, startGame, socket } = useSocket()
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
@@ -68,25 +68,28 @@ export default function Game() {
     }
   }, [update])
 
+  useEffect(() => {
+    console.log("DEYISDI")
+    update()
+  }, [update])
+
   if (!isConnected) return <div className="text-white">Connecting...</div>
 
   return (
     <div className="flex items-center gap-10 flex-wrap h-full justify-center bg-[#1E213F]">
       <h2>ID: {gameRoom?.id || gameState?.id}</h2>
 
-      {gameState?.isGameStarted && (
-        <canvas className="w-[500px] aspect-square" ref={canvasRef}></canvas>
-      )}
+      <canvas className="w-[500px] aspect-square" ref={canvasRef}></canvas>
 
       {!gameState?.isGameStarted && (
         <div className="flex flex-col justify-center p-6 gap-2  rounded-lg bg-[#2E3B5C]">
           <h1 className="text-white font-bold text-lg">Waiting for game to start...</h1>
           {socket?.id === gameRoom?.ownerId && (
             <button
-              disabled={Object.keys(!gameState?.players).length <= 1}
+              disabled={gameState?.players && Object.keys(gameState?.players).length <= 1}
               className="bg-[#3A456B] text-white font-bold py-2 px-4 rounded"
               onClick={() => {
-                // socket.emit("startGame", gameRoom?.id)
+                startGame()
               }}
             >
               Start Game

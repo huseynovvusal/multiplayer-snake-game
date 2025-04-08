@@ -10,9 +10,9 @@ export default function Home() {
   const [roomId, setRoomId] = useState("")
   const [playerName, setPlayerName] = useState("")
 
-  if (!gameRoom?.gameState.isGameOver && gameRoom?.gameState.isGameStarted) {
-    return <Navigate to={"/game"} />
-  }
+  // if (!gameRoom?.gameState.isGameOver && gameRoom?.gameState.isGameStarted) {
+  //   return <Navigate to={"/game"} />
+  // }
 
   return (
     <div>
@@ -20,8 +20,10 @@ export default function Home() {
       <p>Join a room or create a new one to start playing!</p>
       {/* Add your game room creation and joining logic here */}
       <button
+        type="button"
         onClick={() => {
-          createRoom()
+          console.log("PLYASJHASFSHAS:", playerName)
+          createRoom(playerName)
           navigate("/game")
         }}
       >
