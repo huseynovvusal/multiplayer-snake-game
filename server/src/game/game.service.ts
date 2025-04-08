@@ -7,7 +7,7 @@ export class GameService {
   private gameRooms: Map<string, GameRoom> = new Map();
   private intervalIds: Map<string, NodeJS.Timeout> = new Map();
 
-  private readonly TICK_RATE = 100; // ms
+  private readonly TICK_RATE = 300; // ms
   private GRID_SIZE = { width: 50, height: 50 };
   private INITIAL_SNAKE_LENGTH = 3;
 
@@ -104,9 +104,20 @@ export class GameService {
   }
 
   private initializeSnake(): { x: number; y: number }[] {
-    // Collect all existing snake positions from all game rooms
-    const allSnakePositions: { x: number; y: number }[] = [];
+    // Calculate the boundaries for the inner 70% of the grid
+    const margin = {
+      x: Math.floor(this.GRID_SIZE.width * 0.15), // 15% margin on each side = 70% usable area
+      y: Math.floor(this.GRID_SIZE.height * 0.15),
+    };
 
+    // Min and max coordinates for spawn area
+    const minX = margin.x;
+    const maxX = this.GRID_SIZE.width - margin.x;
+    const minY = margin.y;
+    const maxY = this.GRID_SIZE.height - margin.y;
+
+    // Collect all existing snake positions
+    const allSnakePositions: { x: number; y: number }[] = [];
     this.gameRooms.forEach((gameRoom) => {
       if (gameRoom.gameState.isGameStarted) return;
 
@@ -117,6 +128,14 @@ export class GameService {
       });
     });
 
+    // Possible directions: right, left, up, down
+    const directions = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 },
+    ];
+
     let valid = false;
     let snake: { x: number; y: number }[] = [];
     let attempts = 0;
@@ -124,15 +143,58 @@ export class GameService {
 
     while (!valid && attempts < maxAttempts) {
       snake = [];
-      const startX = Math.floor(Math.random() * this.GRID_SIZE.width);
-      const startY = Math.floor(Math.random() * this.GRID_SIZE.height);
+
+      // Choose a random direction
+      const direction =
+        directions[Math.floor(Math.random() * directions.length)];
+
+      // Adjust boundaries based on the direction to prevent the snake from spawning at borders
+      let adjustedMinX = minX;
+      let adjustedMaxX = maxX;
+      let adjustedMinY = minY;
+      let adjustedMaxY = maxY;
+
+      // Adjust the bounds based on the direction to ensure the entire snake body fits within the grid
+      if (direction.x > 0) {
+        // If moving right, ensure there's enough space to the left for the snake's body
+        adjustedMinX = Math.max(minX, this.INITIAL_SNAKE_LENGTH - 1);
+      } else if (direction.x < 0) {
+        // If moving left, ensure there's enough space to the right for the snake's body
+        adjustedMaxX = Math.min(
+          maxX,
+          this.GRID_SIZE.width - this.INITIAL_SNAKE_LENGTH,
+        );
+      }
+
+      if (direction.y > 0) {
+        // If moving down, ensure there's enough space above for the snake's body
+        adjustedMinY = Math.max(minY, this.INITIAL_SNAKE_LENGTH - 1);
+      } else if (direction.y < 0) {
+        // If moving up, ensure there's enough space below for the snake's body
+        adjustedMaxY = Math.min(
+          maxY,
+          this.GRID_SIZE.height - this.INITIAL_SNAKE_LENGTH,
+        );
+      }
+
+      // Generate random starting position within the adjusted area
+      const startX =
+        Math.floor(Math.random() * (adjustedMaxX - adjustedMinX + 1)) +
+        adjustedMinX;
+      const startY =
+        Math.floor(Math.random() * (adjustedMaxY - adjustedMinY + 1)) +
+        adjustedMinY;
 
       valid = true;
 
+      // Create snake segments based on the chosen direction
       for (let i = 0; i < this.INITIAL_SNAKE_LENGTH; i++) {
-        const pos = { x: startX - i, y: startY };
+        const pos = {
+          x: startX - direction.x * i,
+          y: startY - direction.y * i,
+        };
 
-        // Check grid boundaries
+        // Check if the snake segment is within grid boundaries
         if (
           pos.x < 0 ||
           pos.x >= this.GRID_SIZE.width ||
@@ -200,6 +262,8 @@ export class GameService {
         // Update the snake position
         player.snake.unshift(head);
         player.snake.pop();
+
+        console.log("Snake changed");
       }
     }
 
@@ -220,9 +284,9 @@ export class GameService {
       (player) => !player.isEliminated,
     );
 
-    if (activePlayers.length === 1) {
-      return activePlayers[0]; // Return the winner
-    }
+    // if (activePlayers.length === 1) {
+    //   return activePlayers[0]; // Return the winner
+    // }
 
     return null; // No winner yet
   }

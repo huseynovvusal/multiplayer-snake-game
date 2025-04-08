@@ -10,6 +10,7 @@ interface SocketContextProps {
   joinRoom: (roomId: string, playerName: string) => void
   startGame: () => void
   createRoom: (playerName: string) => void
+  handleMove: (direction: { x: number; y: number }) => void
 }
 
 const SocketContext = createContext<SocketContextProps>({
@@ -20,6 +21,7 @@ const SocketContext = createContext<SocketContextProps>({
   joinRoom: () => {},
   startGame: () => {},
   createRoom: () => {},
+  handleMove: () => {},
 })
 
 export const useSocket = () => useContext(SocketContext)
@@ -82,9 +84,24 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
     }
   }
 
+  const handleMove = (direction: { x: number; y: number }) => {
+    if (socket && gameRoom) {
+      socket.emit("move", { roomId: gameRoom.id, direction })
+    }
+  }
+
   return (
     <SocketContext.Provider
-      value={{ socket, isConnected, createRoom, gameRoom, gameState, joinRoom, startGame }}
+      value={{
+        socket,
+        isConnected,
+        createRoom,
+        gameRoom,
+        gameState,
+        joinRoom,
+        startGame,
+        handleMove,
+      }}
     >
       {children}
     </SocketContext.Provider>

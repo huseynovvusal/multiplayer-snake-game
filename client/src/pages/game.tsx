@@ -4,7 +4,7 @@ import { useSocket } from "../contexts/SocketContext"
 const GRID_SIZE = 50
 
 export default function Game() {
-  const { isConnected, gameState, gameRoom, startGame, socket } = useSocket()
+  const { isConnected, gameState, gameRoom, startGame, socket, handleMove } = useSocket()
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
@@ -58,7 +58,29 @@ export default function Game() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      //TODO: Handle key events for player movement
+      if (!gameState?.isGameStarted) return
+
+      let direction = { x: 0, y: 0 }
+
+      switch (event.key) {
+        case "ArrowUp":
+          direction = { x: 0, y: -1 }
+          break
+        case "ArrowDown":
+          direction = { x: 0, y: 1 }
+          break
+        case "ArrowLeft":
+          direction = { x: -1, y: 0 }
+          break
+        case "ArrowRight":
+          direction = { x: 1, y: 0 }
+          break
+        default:
+          return
+      }
+
+      handleMove(direction)
+      event.preventDefault() // Prevent default scrolling behavior
     }
 
     window.addEventListener("keydown", handleKeyDown)
@@ -66,7 +88,7 @@ export default function Game() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [update])
+  }, [update, gameState, handleMove])
 
   useEffect(() => {
     console.log("DEYISDI")
@@ -86,7 +108,7 @@ export default function Game() {
           <h1 className="text-white font-bold text-lg">Waiting for game to start...</h1>
           {socket?.id === gameRoom?.ownerId && (
             <button
-              disabled={gameState?.players && Object.keys(gameState?.players).length <= 1}
+              disabled={gameState?.players && Object.keys(gameState?.players).length <= 1 && false}
               className="bg-[#3A456B] text-white font-bold py-2 px-4 rounded"
               onClick={() => {
                 startGame()
