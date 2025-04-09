@@ -7,7 +7,7 @@ export class GameService {
   private gameRooms: Map<string, GameRoom> = new Map();
   private intervalIds: Map<string, NodeJS.Timeout> = new Map();
 
-  private readonly TICK_RATE = 300; // ms
+  private readonly TICK_RATE = 200; // ms
   private GRID_SIZE = { width: 50, height: 50 };
   private INITIAL_SNAKE_LENGTH = 3;
 
@@ -284,6 +284,7 @@ export class GameService {
       (player) => !player.isEliminated,
     );
 
+    //TODO: Implement game over logic
     // if (activePlayers.length === 1) {
     //   return activePlayers[0]; // Return the winner
     // }

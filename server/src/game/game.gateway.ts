@@ -129,6 +129,6 @@ export class GameGateway {
       }
 
       this.server.to(gameId).emit("gameState", gameRoom.gameState);
-    }, 150); // Send updates
+    }, 100); // Send updates
   }
 }
