@@ -40,6 +40,7 @@ export default function Game() {
 
     if (gameState && gameState.players) {
       Object.values(gameState.players).forEach((player) => {
+        ctx.globalAlpha = player.isEliminated ? 0.2 : 1
         ctx.fillStyle = player.color
         player.snake.forEach((segment) => {
           ctx.fillRect(segment.x * cellSize, segment.y * cellSize, cellSize, cellSize)

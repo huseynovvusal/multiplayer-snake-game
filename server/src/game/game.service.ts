@@ -13,8 +13,7 @@ export class GameService {
 
   createGameRoom(ownerId: string, ownerName: string): GameRoom {
     const roomId = uuidv4(); // Generate a unique room ID
-
-    const color = `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`; //? Random color for the player
+    const color = `hsl(${Math.floor(Math.random() * 360)}, 100%, 70%)`; // Bright random color for the player
 
     const gameRoom: GameRoom = {
       id: roomId,
@@ -57,7 +56,8 @@ export class GameService {
       throw new Error("Player already exists in the game room");
     }
 
-    const color = `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`; //? Random color for the player
+    // const color = `hsl(${Math.floor(Math.random() * 360)}, 100%, 50%)`; //? Random color for the player
+    const color = `hsl(${Math.floor(Math.random() * 360)}, 100%, 70%)`; // Bright random color for the player
 
     gameRoom.gameState.players[playerId] = {
       id: playerId,
@@ -312,7 +312,7 @@ export class GameService {
       return;
     }
 
-    player.direction = direction;
+    player.direction = { ...direction };
   }
 
   private checkCollision(
