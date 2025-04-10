@@ -8,10 +8,12 @@ export interface Direction {
   y: number;
 }
 
+export type Snake = Position[];
+
 export interface Player {
   id: string;
   name: string;
-  snake: Position[];
+  snake: Snake;
   direction: Direction;
   color: string;
   isEliminated: boolean;

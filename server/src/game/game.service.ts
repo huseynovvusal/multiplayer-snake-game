@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { GameRoom, Player, Position } from "./types";
+import { GameRoom, Player, Position, Snake } from "./types";
 import { v4 as uuidv4 } from "uuid"; // Import uuid for generating unique room IDs
 
 @Injectable()
@@ -27,7 +27,7 @@ export class GameService {
             score: 0,
             isEliminated: false,
             snake: [],
-            direction: { x: 1, y: 0 },
+            direction: { x: 0, y: 1 },
             color,
           },
         },
@@ -65,19 +65,19 @@ export class GameService {
       score: 0,
       isEliminated: false,
       snake: [],
-      direction: { x: 1, y: 0 },
+      direction: { x: 0, y: 1 },
       color,
     };
   }
 
   eliminatePlayer(roomId: string, playerId: string): void {
-    const gameRoom = this.getGameRoom(roomId);
+    /* const gameRoom = this.getGameRoom(roomId);
     if (!gameRoom) throw new Error("There is no such a game room");
 
     const player = gameRoom.gameState.players[playerId];
     if (!player) throw new Error("Player not found");
 
-    player.isEliminated = true;
+    player.isEliminated = true; */
   }
 
   startGame(roomId: string): void {
@@ -103,8 +103,8 @@ export class GameService {
     console.log("Game started in room:", roomId);
   }
 
-  private initializeSnake(): { x: number; y: number }[] {
-    // Calculate the boundaries for the inner 70% of the grid
+  private initializeSnake(): Snake {
+    /*  // Calculate the boundaries for the inner 70% of the grid
     const margin = {
       x: Math.floor(this.GRID_SIZE.width * 0.15), // 15% margin on each side = 70% usable area
       y: Math.floor(this.GRID_SIZE.height * 0.15),
@@ -221,6 +221,23 @@ export class GameService {
       attempts++;
     }
 
+    return snake; */
+
+    const snake: Snake = [
+      {
+        x: 0,
+        y: 0,
+      },
+      {
+        x: 1,
+        y: 0,
+      },
+      {
+        x: 2,
+        y: 0,
+      },
+    ];
+
     return snake;
   }
 
@@ -238,7 +255,11 @@ export class GameService {
   private updateGameState(gameRoom: GameRoom): void {
     for (const playerId in gameRoom.gameState.players) {
       const player = gameRoom.gameState.players[playerId];
+
       if (!player.isEliminated) {
+        // ! Debug
+        console.log("Player", playerId, "is eliminated:", player.isEliminated);
+
         // Move the snake
         const head = { ...player.snake[0] };
         head.x += player.direction.x;
@@ -263,7 +284,8 @@ export class GameService {
         player.snake.unshift(head);
         player.snake.pop();
 
-        console.log("Snake changed");
+        // ! Debug
+        // console.log("Snake changed", playerId);
       }
     }
 
