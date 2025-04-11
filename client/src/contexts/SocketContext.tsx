@@ -54,6 +54,13 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
       setGameRoom(room)
     })
 
+    // Add this listener to handle joining an existing room
+    socketInstance.on("joinedRoom", (room: GameRoom) => {
+      console.log("Joined room:", room.id)
+      setGameState(room.gameState)
+      setGameRoom(room)
+    })
+
     socketInstance.on("gameState", (gameState: GameState) => {
       setGameState(gameState)
     })

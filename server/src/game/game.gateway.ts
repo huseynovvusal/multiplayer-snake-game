@@ -67,7 +67,11 @@ export class GameGateway {
     this.playerRooms.set(client.id, roomId);
 
     this.gameService.addPlayerToRoom(roomId, client.id, playerName);
-    // this.server.to(roomId).emit("playerJoined", client.id);
+
+    // Emit the full room information to the joining client
+    client.emit("joinedRoom", gameRoom);
+
+    // Update all clients in the room with the new game state
     this.server.to(roomId).emit("gameState", gameRoom.gameState);
   }
 
@@ -98,6 +102,9 @@ export class GameGateway {
 
   @SubscribeMessage("move")
   handleMove(client: any, data: { direction: { x: number; y: number } }) {
+    // ! Debug
+    console.log("Gateway", "move", data);
+
     const roomId = this.playerRooms.get(client.id);
     if (!roomId) {
       client.emit("notInRoom");
