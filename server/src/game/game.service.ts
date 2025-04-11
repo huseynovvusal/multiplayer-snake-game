@@ -228,6 +228,13 @@ export class GameService {
     const gameRoom = this.getGameRoom(roomId);
     if (!gameRoom) throw new Error("There is no such a game room");
 
+    // Reset all isEliminated flags
+    for (const playerId in gameRoom.gameState.players) {
+      gameRoom.gameState.players[playerId].isEliminated = false;
+    }
+
+    gameRoom.gameState.isGameOver = false;
+
     const intervalId = setInterval(() => {
       this.updateGameState(gameRoom);
     }, this.TICK_RATE);
@@ -337,7 +344,10 @@ export class GameService {
 
     // Check for collisions with snakes including the player's own snake
     for (const otherPlayerId in gameRoom.gameState.players) {
-      if (otherPlayerId !== playerId) {
+      if (
+        otherPlayerId !== playerId &&
+        !gameRoom.gameState.players[otherPlayerId].isEliminated
+      ) {
         const otherPlayer = gameRoom.gameState.players[otherPlayerId];
         for (const segment of otherPlayer.snake) {
           if (segment.x === position.x && segment.y === position.y) {
