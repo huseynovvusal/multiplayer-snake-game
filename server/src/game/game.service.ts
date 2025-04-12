@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { GameRoom, Player, Position, Snake } from "./types";
+import { Food, GameRoom, Player, Position, Snake } from "./types";
 import { v4 as uuidv4 } from "uuid"; // Import uuid for generating unique room IDs
 
 @Injectable()
@@ -99,7 +99,10 @@ export class GameService {
     // Start the game loop
     this.startGameLoop(roomId);
 
-    //!
+    // Spawn food
+    this.spawnFood(gameRoom);
+
+    //! Debug
     console.log("Game started in room:", roomId);
   }
 
@@ -243,6 +246,9 @@ export class GameService {
   }
 
   private updateGameState(gameRoom: GameRoom): void {
+    // !! Debug
+    console.log("Game state updated", Date.now());
+
     for (const playerId in gameRoom.gameState.players) {
       const player = gameRoom.gameState.players[playerId];
 
@@ -267,15 +273,25 @@ export class GameService {
           continue;
         }
 
-        // Update the snake position
-        player.snake.unshift(head);
-        player.snake.pop();
+        // Check for collisions with food
+        const foodIndex = gameRoom.gameState.food.findIndex(
+          (food) => food.x === head.x && food.y === head.y,
+        );
+
+        if (foodIndex !== -1) {
+          // Grow the snake
+          player.snake.unshift(head);
+          player.score += 1;
+
+          // Remove the eaten food and spawn a new one
+          this.spawnFood(gameRoom, foodIndex);
+        } else {
+          // Update the snake position
+          player.snake.unshift(head);
+          player.snake.pop();
+        }
       }
     }
-
-    // Check for collisions with food
-    // For example, if a player eats food, grow the snake and increase score
-    // Update food position, spawn new food, etc.
 
     // Check if the game is over
     if (this.isGameOver(gameRoom)) {
@@ -356,6 +372,60 @@ export class GameService {
           }
         }
       }
+    }
+  }
+
+  private spawnFood(gameRoom: GameRoom, replaceIndex?: number): void {
+    let pos: Position;
+    do {
+      pos = {
+        x: Math.floor(Math.random() * gameRoom.gameState.gridSize.width),
+        y: Math.floor(Math.random() * gameRoom.gameState.gridSize.height),
+      };
+    } while (this.isPositionOccupied(gameRoom, pos));
+
+    if (replaceIndex !== undefined) {
+      // Replace the specific food item
+      gameRoom.gameState.food[replaceIndex] = pos;
+    } else {
+      // Add a new food item
+      gameRoom.gameState.food.push(pos);
+    }
+  }
+
+  private isPositionOccupied(gameRoom: GameRoom, pos: Position): boolean {
+    // Check if the position is occupied by any snake segment
+    for (const playerId in gameRoom.gameState.players) {
+      const player = gameRoom.gameState.players[playerId];
+      if (player.isEliminated) continue;
+
+      for (const segment of player.snake) {
+        if (segment.x === pos.x && segment.y === pos.y) {
+          return true; // Position is occupied
+        }
+      }
+    }
+
+    return false; // Position is free
+  }
+
+  stopGame(roomId: string): void {
+    const gameRoom = this.getGameRoom(roomId);
+    if (!gameRoom) throw new Error("There is no such a game room");
+
+    clearInterval(this.intervalIds.get(roomId));
+    this.intervalIds.delete(roomId);
+
+    gameRoom.gameState.isGameStarted = false;
+    gameRoom.gameState.isGameOver = true;
+  }
+
+  deleteGameRoom(roomId: string): void {
+    this.gameRooms.delete(roomId);
+    const intervalId = this.intervalIds.get(roomId);
+    if (intervalId) {
+      clearInterval(intervalId);
+      this.intervalIds.delete(roomId);
     }
   }
 }

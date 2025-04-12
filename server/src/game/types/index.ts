@@ -9,6 +9,7 @@ export interface Direction {
 }
 
 export type Snake = Position[];
+export type Food = Position[];
 
 export interface Player {
   id: string;
@@ -23,7 +24,7 @@ export interface Player {
 export interface GameState {
   id: string;
   players: Record<string, Player>;
-  food: Position[];
+  food: Food;
   gridSize: { width: number; height: number };
   isGameOver: boolean;
   isGameStarted: boolean;

@@ -38,22 +38,31 @@ export default function Game() {
       }
     }
 
-    if (gameState && gameState.players) {
-      Object.values(gameState.players).forEach((player) => {
-        ctx.globalAlpha = player.isEliminated ? 0.2 : 1
-        ctx.fillStyle = player.color
-        player.snake.forEach((segment) => {
-          ctx.fillRect(segment.x * cellSize, segment.y * cellSize, cellSize, cellSize)
-          ctx.strokeStyle = "#233053"
-          const padding = cellSize * 0
-          ctx.strokeRect(
-            segment.x * cellSize + padding,
-            segment.y * cellSize + padding,
-            cellSize - padding * 2,
-            cellSize - padding * 2
-          )
-        })
+    if (gameState) {
+      // Draw food
+      gameState.food.forEach((food) => {
+        ctx.fillStyle = "red"
+        ctx.fillRect(food.x * cellSize, food.y * cellSize, cellSize, cellSize)
       })
+
+      // Draw players
+      if (gameState.players) {
+        Object.values(gameState.players).forEach((player) => {
+          ctx.globalAlpha = player.isEliminated ? 0.2 : 1
+          ctx.fillStyle = player.color
+          player.snake.forEach((segment) => {
+            ctx.fillRect(segment.x * cellSize, segment.y * cellSize, cellSize, cellSize)
+            ctx.strokeStyle = "#233053"
+            const padding = cellSize * 0
+            ctx.strokeRect(
+              segment.x * cellSize + padding,
+              segment.y * cellSize + padding,
+              cellSize - padding * 2,
+              cellSize - padding * 2
+            )
+          })
+        })
+      }
     }
   }, [gameState])
 
