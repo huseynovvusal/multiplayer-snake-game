@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Food, GameRoom, Player, Position, Snake } from "./types";
+import { GameRoom, Player, Position, Snake } from "./types";
 import { v4 as uuidv4 } from "uuid"; // Import uuid for generating unique room IDs
 
 @Injectable()
@@ -7,7 +7,7 @@ export class GameService {
   private gameRooms: Map<string, GameRoom> = new Map();
   private intervalIds: Map<string, NodeJS.Timeout> = new Map();
 
-  private readonly TICK_RATE = 200; // ms
+  private readonly TICK_RATE = 100; // ms
   private GRID_SIZE = { width: 50, height: 50 };
   private INITIAL_SNAKE_LENGTH = 3;
 
@@ -106,6 +106,10 @@ export class GameService {
     console.log("Game started in room:", roomId);
   }
 
+  //TODO: Fix issues with snake spawning
+  // - Snake should not spawn on the edges of the grid
+  // - Snake should not spawn in the same position as other players
+  // - Snake should not spawn in the same position as food
   private initializeSnake(): Snake {
     // Calculate the boundaries for the inner 70% of the grid
     const margin = {
@@ -236,7 +240,9 @@ export class GameService {
       gameRoom.gameState.players[playerId].isEliminated = false;
     }
 
-    gameRoom.gameState.isGameOver = false;
+    gameRoom.gameState.isGameOver = false; //? Reset game over flag
+    gameRoom.gameState.isGameStarted = true; //? Reset game started flag
+    gameRoom.gameState.food = []; //? Clear food array
 
     const intervalId = setInterval(() => {
       this.updateGameState(gameRoom);
@@ -360,10 +366,7 @@ export class GameService {
 
     // Check for collisions with snakes including the player's own snake
     for (const otherPlayerId in gameRoom.gameState.players) {
-      if (
-        otherPlayerId !== playerId &&
-        !gameRoom.gameState.players[otherPlayerId].isEliminated
-      ) {
+      if (!gameRoom.gameState.players[otherPlayerId].isEliminated) {
         const otherPlayer = gameRoom.gameState.players[otherPlayerId];
         for (const segment of otherPlayer.snake) {
           if (segment.x === position.x && segment.y === position.y) {
@@ -385,10 +388,8 @@ export class GameService {
     } while (this.isPositionOccupied(gameRoom, pos));
 
     if (replaceIndex !== undefined) {
-      // Replace the specific food item
       gameRoom.gameState.food[replaceIndex] = pos;
     } else {
-      // Add a new food item
       gameRoom.gameState.food.push(pos);
     }
   }

@@ -109,40 +109,63 @@ export default function Game() {
 
   return (
     <div className="flex items-center gap-10 flex-wrap h-full justify-center bg-[#1E213F]">
-      <h2>ID: {gameRoom?.id || gameState?.id}</h2>
-
-      <canvas className="w-[500px] aspect-square" ref={canvasRef}></canvas>
-
-      {!gameState?.isGameStarted && (
-        <div className="flex flex-col justify-center p-6 gap-2  rounded-lg bg-[#2E3B5C]">
-          <h1 className="text-white font-bold text-lg">Waiting for game to start...</h1>
-          {socket?.id === gameRoom?.ownerId && (
-            <button
-              disabled={gameState?.players && Object.keys(gameState?.players).length <= 1 && false}
-              className="bg-[#3A456B] text-white font-bold py-2 px-4 rounded"
-              onClick={() => {
-                startGame()
-              }}
-            >
-              Start Game
-            </button>
-          )}
-        </div>
+      {(gameState?.isGameStarted || gameState?.isGameOver) && (
+        <canvas className="w-[500px] aspect-square" ref={canvasRef}></canvas>
       )}
 
-      <div className="flex flex-col justify-center p-6 gap-2  rounded-lg">
-        {gameState &&
-          Object.keys(gameState?.players).map((playerId) => (
-            <div key={playerId} className="flex items-center gap-2">
-              <div
-                className="w-6 aspect-square rounded-sm"
-                style={{ backgroundColor: gameState.players[playerId].color }}
-              ></div>
-              <span className="text-white font-bold text-lg">
-                {gameState.players[playerId].name}
-              </span>
-            </div>
-          ))}
+      <div className="font-mono text-white text-lg flex flex-col gap-2 p-6 rounded-lg bg-[#2E3B5C] border border-gray-700 ">
+        <div className="flex items-center gap-2">
+          <span className="select-none">Room Owner:</span>
+          <span
+            className="font-bold"
+            style={{ color: gameRoom?.gameState.players[gameRoom?.ownerId].color }}
+          >
+            {gameRoom?.gameState.players[gameRoom?.ownerId].name || ""}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="select-none">Room ID:</span>
+          <span className="text-yellow-300">{gameRoom?.id}</span>
+        </div>
+
+        {!gameState?.isGameStarted && (
+          <div className="flex gap-2 flex-col">
+            <span className="font-mono font-normal text-blue-200 text-md">
+              Waiting for game to start...
+            </span>
+
+            {socket?.id === gameRoom?.ownerId && (
+              <button
+                disabled={
+                  gameState?.players && Object.keys(gameState?.players).length <= 1 && false
+                }
+                className="bg-[#3A456B] text-white font-bold py-2 px-4 rounded"
+                onClick={() => {
+                  startGame()
+                }}
+              >
+                Start Game
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <div className="flex flex-col justify-center p-6 gap-2  rounded-lg">
+          {gameState &&
+            Object.keys(gameState?.players).map((playerId) => (
+              <div key={playerId} className="flex items-center gap-2">
+                <div
+                  className="w-6 aspect-square rounded-sm"
+                  style={{ backgroundColor: gameState.players[playerId].color }}
+                ></div>
+                <span className="text-white font-bold text-lg">
+                  {gameState.players[playerId].name}
+                </span>
+              </div>
+            ))}
+        </div>
       </div>
     </div>
   )
