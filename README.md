@@ -1,4 +1,4 @@
-# Multiplayer Snake Game 🎮🐍
+# Multiplayer Snake Game 🐍
 
 Welcome to the **Multiplayer Snake Game**, a modern twist on the classic snake game where you can compete with friends in real-time! This project is built using **NestJS** for the server and **React** with **Vite** for the client, ensuring a fast and scalable gaming experience.
 
