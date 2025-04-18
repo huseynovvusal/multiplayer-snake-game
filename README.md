@@ -94,7 +94,7 @@ Welcome to the **Multiplayer Snake Game**, a modern twist on the classic snake g
 ```
 multiplayer-snake-game/
 ├── client/       # Frontend code (React + Vite)
-├── server/       # Backend code (NestJS)
+├── server/       # Backend code (NestJS + Socket.io)
 └── assets/       # Images and other assets
 ```
 
