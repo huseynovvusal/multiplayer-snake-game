@@ -1,18 +1,14 @@
-import { Navigate, useNavigate } from "react-router"
+import { useNavigate } from "react-router"
 import { useSocket } from "../contexts/SocketContext"
 import { useState } from "react"
 
 export default function Home() {
-  const { createRoom, joinRoom, gameRoom } = useSocket()
+  const { createRoom, joinRoom } = useSocket()
 
   const navigate = useNavigate()
 
   const [roomId, setRoomId] = useState("")
   const [playerName, setPlayerName] = useState("")
-
-  // if (!gameRoom?.gameState.isGameOver && gameRoom?.gameState.isGameStarted) {
-  //   return <Navigate to={"/game"} />
-  // }
 
   return (
     <div>
