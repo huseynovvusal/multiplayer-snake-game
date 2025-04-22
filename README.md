@@ -9,7 +9,6 @@ Welcome to the **Multiplayer Snake Game**, a modern twist on the classic snake g
 - **Multiplayer Gameplay**: Join or create rooms to play with friends. 👫
 - **Dynamic Game Board**: Real-time updates of the game state. 🕹️
 - **Customizable Player Colors**: Each player gets a unique color. 🎨
-- **Responsive Design**: Play on any device with a modern browser. 📱💻
 
 ---
 
